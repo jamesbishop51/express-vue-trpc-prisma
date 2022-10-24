@@ -14,17 +14,32 @@
       @click="reset"
     />
     <div v-if="showFormAndMessages" class="trpc-example__container">
-      <SendMessageForm :form="form" @submit-form="handleSubmitForm" />
-      <h2 v-if="isLoading">Data is being loaded</h2>
-      <Message v-for="chatMessage in data" :key="chatMessage.id" :chat-message="chatMessage" />
+      <div>
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>System</th>
+              <th>default Item ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="design in data" :key="design.id">
+              <td style="width: 300px">{{ design.id }}</td>
+              <td style="width: 300px">{{ design.name }}</td>
+              <td style="width: 300px">{{ design.systemId }}</td>
+              <td style="width: 300px">{{ design.defaultItemId }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
-import Message from './components/Message.vue';
-import SendMessageForm from './components/SendMessageForm.vue';
 import Error from './components/Error.vue';
 import { useQuery, useMutation, useQueryClient } from 'vue-query';
 import { trpc } from './api/trpc';
@@ -36,16 +51,14 @@ const form = reactive({
   user: '',
   message: '',
 });
+const getDesigns = () => trpc.query("getDesigns");
 
-const getMessages = () => trpc.query('getMessages');
 const {
   isError: getMessagesHasError,
   isLoading,
   data,
   refetch,
-} = useQuery('getMessages', getMessages, {
-  refetchOnWindowFocus: false,
-});
+} = useQuery("getDesigns", getDesigns);
 
 const addMessage = (form: Form) => trpc.mutation('addMessage', form);
 const { error: addMessageHasError, mutate, reset } = useMutation('addMessage', addMessage);
@@ -64,7 +77,7 @@ const showFormAndMessages = computed(() => {
 </script>
 
 <style scoped lang="scss">
-@import './style.css';
+@import "./style.css";
 
 .trpc-example {
   max-width: 800px;
@@ -72,5 +85,38 @@ const showFormAndMessages = computed(() => {
   &__container {
     text-align: left;
   }
+}
+
+.styled-table {
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-size: 0.9em;
+  font-family: sans-serif;
+  min-width: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+.styled-table thead tr {
+  background-color: #009879;
+  color: #ffffff;
+  text-align: left;
+}
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+}
+.styled-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+  border-bottom: 2px solid #009879;
+}
+.styled-table tbody tr.active-row {
+  font-weight: bold;
+  color: #009879;
 }
 </style>
