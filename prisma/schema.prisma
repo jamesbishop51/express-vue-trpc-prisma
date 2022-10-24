@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Design {
+  id            Int    @id @default(autoincrement())
+  systemId      Int
+  name          String
+  defaultItemId Int
+  System        System @relation(fields: [systemId], references: [id])
+  Item          Item[]
+}
+
+model Item {
+  id       Int    @id @default(autoincrement())
+  designId Int
+  Design   Design @relation(fields: [designId], references: [id])
+  Pane     Pane[]
+}
+
+model Pane {
+  id                  Int           @id @default(autoincrement())
+  itemId              Int
+  type                String
+  width               Int
+  height              Int
+  manufacturingWidth  Int
+  maunfacturingHeight Int
+  Item                Item          @relation(fields: [itemId], references: [id])
+  PaneDetails         PaneDetails[]
+}
+
+model PaneDetails {
+  id       Int     @id @default(autoincrement())
+  paneId   Int
+  on       Boolean
+  name     String
+  cncName  String
+  type     String
+  widthFn  String
+  heightFn String
+  xFn      String
+  width    Int
+  height   Int
+  x        Int
+  y        Int
+  material String
+  yfN      String
+  Pane     Pane    @relation(fields: [paneId], references: [id])
+}
+
+model System {
+  id     Int      @id @default(autoincrement())
+  name   String
+  Design Design[]
+}
