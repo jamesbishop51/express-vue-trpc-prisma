@@ -1,12 +1,12 @@
 import * as trpc from '@trpc/server';
-import { z } from 'zod';
+import { number, z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaClient } from '@prisma/client';
 
 export interface ChatMessage {
-  id: string;
-  user: string;
-  message: string;
+  id: string
+  user: string
+  message: string
 }
 
 const prisma = new PrismaClient()
@@ -31,24 +31,19 @@ export const appRouter = trpc
       return designs
     }
   })
-  .query('getMessages', {
-    input: z.number().default(10),
-    resolve({ input }) {
-      return messages.slice(-input);
-    },
-  })
-  .mutation('addMessage', {
+  .mutation('addDesign', {
     input: z.object({
-      user: z.string(),
-      message: z.string(),
+      name: z.string(),
+      systemId: z.number(),
+      defaultItemId: z.number(),
+
     }),
-    resolve({ input }) {
-      const newMessage: ChatMessage = {
-        id: uuidv4(),
+    async resolve({ input }) {
+      const data = {
         ...input,
       };
-      messages.push(newMessage);
-      return input;
+      const push = await prisma.design.create({data})
+      return push;
     },
   });
 

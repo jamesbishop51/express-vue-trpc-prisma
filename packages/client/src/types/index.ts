@@ -1,4 +1,5 @@
 export interface Form {
-  user: string;
-  message: string;
+  name: string;
+  systemId: number;
+  defaultItemId: number
 }

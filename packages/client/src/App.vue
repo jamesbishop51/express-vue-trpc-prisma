@@ -13,6 +13,7 @@
       cta-text="Reset error"
       @click="reset"
     />
+    <AddDesignForm :form="form" @submit-form="handleSubmitForm" />
     <div v-if="showFormAndMessages" class="trpc-example__container">
       <div>
         <table class="styled-table">
@@ -24,8 +25,8 @@
               <th>default Item ID</th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="design in data" :key="design.id">
+          <tbody v-for="design in data" :key="design.id">
+            <tr>
               <td style="width: 300px">{{ design.id }}</td>
               <td style="width: 300px">{{ design.name }}</td>
               <td style="width: 300px">{{ design.systemId }}</td>
@@ -44,12 +45,14 @@ import Error from './components/Error.vue';
 import { useQuery, useMutation, useQueryClient } from 'vue-query';
 import { trpc } from './api/trpc';
 import { Form } from './types';
+import AddDesignForm from './components/AddDesignForm.vue';
 
 const queryClient = useQueryClient();
 
 const form = reactive({
-  user: '',
-  message: '',
+  name: '',
+  systemId: 0,
+  defaultItemId: 0,
 });
 const getDesigns = () => trpc.query("getDesigns");
 
@@ -60,13 +63,14 @@ const {
   refetch,
 } = useQuery("getDesigns", getDesigns);
 
-const addMessage = (form: Form) => trpc.mutation('addMessage', form);
-const { error: addMessageHasError, mutate, reset } = useMutation('addMessage', addMessage);
+// const addMessage = (form: Form) => trpc.mutation('addMessage', form);
+const addDesign = (form: Form) => trpc.mutation('addDesign', form)
+const { error: addMessageHasError, mutate, reset } = useMutation('addDesign', addDesign);
 
 const handleSubmitForm = () => {
   mutate(form, {
     onSuccess: () => {
-      queryClient.invalidateQueries('getMessages');
+      queryClient.invalidateQueries('getDesigns');
     },
   });
 };
